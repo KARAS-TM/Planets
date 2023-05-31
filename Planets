@@ -1,0 +1,193 @@
+import math
+import pygame
+
+# Инициализация
+
+pygame.init()
+width, height = 1600, 900
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Солнечная система")
+FPS = 120
+fpsClock = pygame.time.Clock()
+imgbox = pygame.transform.scale(pygame.image.load('images/hitbox.png'), (1, 1))
+imgsun = pygame.transform.scale(pygame.image.load('images/sun.png'), (90, 90))
+imgvenus = pygame.transform.scale(pygame.image.load('images/venus.png'), (30, 30))
+imgvenus2 = pygame.transform.scale(pygame.image.load('images/venus1.jpg'), (600, 500))
+imgmars = pygame.transform.scale(pygame.image.load('images/mars.png'), (24, 24))
+imgmars2 = pygame.transform.scale(pygame.image.load('images/mars1.jpg'), (600, 500))
+imgearth = pygame.transform.scale(pygame.image.load('images/earth.png'), (40, 40))
+imgearth2 = pygame.transform.scale(pygame.image.load('images/earth1.jpg'), (600, 500))
+imgjupiter = pygame.transform.scale(pygame.image.load('images/jupiter.png'), (60, 60))
+imgjupiter2 = pygame.transform.scale(pygame.image.load('images/jupiter1.jpg'), (600, 500))
+imgneptune = pygame.transform.scale(pygame.image.load('images/neptune.png'), (44, 44))
+imgneptune2 = pygame.transform.scale(pygame.image.load('images/neptune1.jpg'), (600, 500))
+imgsaturn = pygame.transform.scale(pygame.image.load('images/saturn.png'), (55, 55))
+imgsaturn2 = pygame.transform.scale(pygame.image.load('images/saturn1.jpg'), (600, 500))
+imguran= pygame.transform.scale(pygame.image.load('images/uran.png'), (50, 50))
+imguran2 = pygame.transform.scale(pygame.image.load('images/uran1.jpg'), (600, 500))
+imgmercury= pygame.transform.scale(pygame.image.load('images/mercury.png'), (20, 20))
+imgmercury2 = pygame.transform.scale(pygame.image.load('images/mercury1.jpg'), (600, 500))
+imgfon = pygame.transform.scale(pygame.image.load('images/fon.jpg'), (width, height))
+
+#sound1 = pygame.mixer.Sound('sounds/kosmos.mp3')
+#sound1.play(-1)
+
+center_x, center_y = width // 2, height // 2
+sun_center_x, sun_center_y = center_x - imgsun.get_width() // 2, center_y - imgsun.get_height() // 2
+
+# Новый класс для отрисовки орбит
+
+class Orbit:
+    def __init__(self, distance):
+        self.distance = distance
+
+    def draw(self):
+        pygame.draw.circle(screen, (255, 255, 255), (center_x, center_y), self.distance, 1)
+
+
+class Sun:
+    def __init__(self, img, w, h):
+        self.img = img
+        self.w = w
+        self.h = h
+        self.x_center = sun_center_x
+        self.y_center = sun_center_y
+
+
+    def draw(self):
+        s = pygame.Rect(self.x_center, self.y_center, self.w, self.h)
+        screen.blit(self.img, s)
+
+
+
+class Planet:
+    def __init__(self, img, w, h, distance, speed, initial_angle=0):
+        self.img = img
+        self.w = w
+        self.h = h
+        self.distance = distance
+        self.speed = speed
+        self.angle = math.radians(initial_angle)
+
+    def draw(self):
+        x = math.cos(self.angle) * self.distance + sun_center_x - self.w // 2
+        y = math.sin(self.angle) * self.distance + sun_center_y - self.h // 2
+        s = pygame.Rect(x, y, self.w, self.h)
+        screen.blit(self.img, s)
+
+    def move(self):
+        self.angle += self.speed
+
+
+sun = Sun(imgsun, 100, 100)
+
+# Создаем экземпляры класса орбит для каждой планеты
+
+mercury_orbit = Orbit(110)
+venus_orbit = Orbit(150)
+earth_orbit = Orbit(190)
+mars_orbit = Orbit(210)
+jupiter_orbit = Orbit(240)
+saturn_orbit = Orbit(280)
+uranus_orbit = Orbit(320)
+neptune_orbit = Orbit(360)
+
+
+mercury = Planet(imgmercury, -70, -70, 110, 47.36 / 10000)
+venus = Planet(imgvenus, -60, -60, 150, 35.02 / 10000, 180)
+earth = Planet(imgearth, -50, -50, 190, 29.78 / 10000)
+mars = Planet(imgmars, -66, -66, 210, 24.13 / 10000, 90)
+jupiter = Planet(imgjupiter, -40, -40, 240, 13.07 / 10000)
+saturn = Planet(imgsaturn, -40, -40, 280, 9.69 / 10000, 45)
+uranus = Planet(imguran, -48, -48, 320, 6.81 / 10000, 135)
+neptune = Planet(imgneptune, -44, -44, 360, 5.43 / 10000, 270)
+running = True
+while running:
+    fpsClock.tick(FPS)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            running = False
+
+    screen.fill((0, 0, 0))
+    # Отображение текущего изображения
+    screen.blit(imgfon, (0, 0))
+
+    sun.draw()
+
+    imgbox_rect = imgbox.get_rect(center=(250, 250))
+    screen.blit(imgbox, imgbox_rect)
+
+    # Рисуем орбиты перед тем, как рисовать планеты
+
+    mercury_orbit.draw()
+    venus_orbit.draw()
+    earth_orbit.draw()
+    mars_orbit.draw()
+    jupiter_orbit.draw()
+    saturn_orbit.draw()
+    uranus_orbit.draw()
+    neptune_orbit.draw()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                neptune.speed += 0.001
+                mercury.speed += 0.001
+                earth.speed += 0.001
+                venus.speed += 0.001
+                jupiter.speed += 0.001
+                uranus.speed += 0.001
+                mars.speed += 0.001
+                saturn.speed += 0.001
+            if event.key == pygame.K_DOWN:
+                neptune.speed -= 0.001
+                mercury.speed -= 0.001
+                earth.speed -= 0.001
+                venus.speed -= 0.001
+                jupiter.speed -= 0.001
+                uranus.speed -= 0.001
+                mars.speed -= 0.001
+                saturn.speed -= 0.001
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = pygame.mouse.get_pos()
+            if venus_orbit.distance - 15 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= venus_orbit.distance + 15:
+                current_image = imgvenus2
+                imgbox = imgvenus2
+            elif earth_orbit.distance - 20 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= earth_orbit.distance + 20:
+                current_image = imgearth2
+                imgbox = imgearth2
+            elif mars_orbit.distance - 12 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= mars_orbit.distance + 12:
+                current_image = imgmars2
+                imgbox = imgmars2
+            elif jupiter_orbit.distance - 30 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= jupiter_orbit.distance + 30:
+                current_image = imgjupiter2
+                imgbox = imgjupiter2
+            elif mercury_orbit.distance - 13 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= venus_orbit.distance + 13:
+                current_image = imgmercury2
+                imgbox = imgmercury2
+            elif saturn_orbit.distance - 27.5 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= saturn_orbit.distance + 27.5:
+                current_image = imgsaturn2
+                imgbox = imgsaturn2
+            elif uranus_orbit.distance - 25 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= uranus_orbit.distance + 25:
+                current_image = imguran2
+                imgbox = imguran2
+            elif neptune_orbit.distance - 22 <= math.sqrt(
+                    (x - center_x) ** 2 + (y - center_y) ** 2) <= neptune_orbit.distance + 22:
+                current_image = imgneptune2
+                imgbox = imgneptune2
+
+    for planet in [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]:
+        planet.move()
+        planet.draw()
+    pygame.display.update()
+
+pygame.quit()
